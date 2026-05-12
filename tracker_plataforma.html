@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Objetivos — Vinatea & Toyama</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;padding:20px 14px}
+:root{--bg:#fff;--bg2:#f3f3f0;--border:rgba(0,0,0,.1);--text:#1a1a18;--text2:#6b6b68;--text3:#9e9e9b;--r:10px;--rl:14px}
+.wrap{max-width:980px;margin:0 auto}
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.hdr-l .meta{font-size:11px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.hdr-l .title{font-size:20px;font-weight:600}
+.hdr-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.save-ind{font-size:11px}
+.btn-primary{display:flex;align-items:center;gap:6px;background:#0F6E56;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-primary:hover{opacity:.88}
+.btn-add{display:flex;align-items:center;gap:6px;background:#185FA5;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer}
+.btn-add:hover{opacity:.88}
+.btn-tpl{display:flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer}
+.btn-tpl:hover{border-color:#185FA5;color:#185FA5}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px}
+.sc{background:var(--bg2);border-radius:var(--r);padding:10px 14px;border-left:3px solid transparent}
+.sc-n{font-size:22px;font-weight:600}
+.sc-l{font-size:11px;color:var(--text3);margin-top:2px}
+/* Area tabs */
+.area-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.area-tab{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:500;border:1.5px solid transparent;transition:all .18s;background:var(--bg)}
+.area-tab.active{color:#fff}
+.area-badge{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600}
+.area-tab-add{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;border:1.5px dashed var(--border);background:transparent;color:var(--text3);transition:all .18s}
+.area-tab-add:hover{border-color:#185FA5;color:#185FA5}
+.area-del-btn{font-size:10px;background:rgba(255,255,255,.3);border:none;border-radius:50%;width:16px;height:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;color:inherit;padding:0;flex-shrink:0}
+.area-del-btn:hover{background:rgba(255,0,0,.3)}
+/* Team bar */
+.tbar-wrap{margin-bottom:20px}
+.tbar{display:flex;gap:3px;height:8px;border-radius:8px;overflow:hidden;background:var(--bg2)}
+.tbar-seg{flex:1;cursor:pointer;transition:opacity .2s}
+.tbar-seg:first-child{border-radius:8px 0 0 8px}
+.tbar-seg:last-child{border-radius:0 8px 8px 0}
+.tbar-lbls{display:flex;margin-top:4px}
+.tbar-lbls span{flex:1;text-align:center;font-size:10px;color:var(--text3)}
+/* Layout */
+.layout{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:start}
+@media(max-width:640px){.layout{grid-template-columns:1fr}}
+.sidebar-lbl{font-size:11px;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.mlist{display:flex;flex-direction:column;gap:7px}
+.mc{display:flex;align-items:center;gap:9px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .18s}
+.mc.active{border-width:2px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;border-width:1.5px;border-style:solid}
+.mc-info{flex:1;min-width:0}
+.mc-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.ring-wrap{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ring-lbl{position:absolute;font-size:8px;font-weight:600}
+/* Detail */
+.det-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.det-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0;border-width:2px;border-style:solid}
+.det-name{font-size:16px;font-weight:600}
+.det-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.oc{position:relative;background:var(--bg);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;margin-bottom:12px}
+/* Admin actions panel */
+.admin-actions-bar{display:flex;align-items:center;gap:8px;background:#FFF8E6;border:1px solid #F0C040;border-radius:8px;padding:9px 14px;margin-bottom:14px;flex-wrap:wrap}
+.admin-actions-lbl{font-size:12px;font-weight:600;color:#854F0B;display:flex;align-items:center;gap:6px;margin-right:4px}
+.btn-admin-action{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #F0C040;color:#854F0B;border-radius:7px;padding:5px 11px;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-admin-action:hover{background:#FFF8E6;border-color:#C45E0A;color:#C45E0A}
+.btn-admin-action.danger{border-color:#cc3333;color:#cc3333}
+.btn-admin-action.danger:hover{background:#fff0f0}
+.btn-del-obj{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);font-size:13px;cursor:pointer;padding:3px 6px;border-radius:5px;line-height:1}
+.btn-del-obj:hover{background:#fff0f0;color:#cc3333}
+.oc{position:relative}
+/* Member delete */
+.mc-del{position:absolute;top:50%;right:10px;transform:translateY(-50%);background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;padding:3px 5px;border-radius:5px;opacity:0;transition:opacity .15s}
+.mc:hover .mc-del{opacity:1}
+.mc-del:hover{background:#fff0f0;color:#cc3333}
+.mc{position:relative}
+/* Rename area modal */
+.rename-field{width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text);margin-bottom:8px;outline:none;box-sizing:border-box}
+.rename-field:focus{border-color:#185FA5}
+
+.oc-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.oc-num{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.oc-txt{flex:1;font-size:13px;line-height:1.5}
+.oc-meta{display:inline-block;margin-top:4px;font-size:10px;border-radius:10px;padding:1px 7px;font-weight:500}
+.oc-w{text-align:right;flex-shrink:0;min-width:44px}
+.oc-wl{font-size:10px;color:var(--text3);margin-bottom:2px}
+.oc-wn{font-size:16px;font-weight:600}
+.oc-wdate{font-size:10px;color:var(--text3);margin-top:2px}
+.st-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.st-btn{border-width:1.5px;border-style:solid;border-radius:20px;padding:3px 12px;font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap}
+.hint{font-size:11px;color:var(--text3)}
+.plr{display:flex;justify-content:space-between;margin-bottom:4px}
+.plr span{font-size:11px}.plr .v{font-weight:500}
+input[type=range]{width:100%;display:block;margin-bottom:11px;height:20px}
+.pbar{height:6px;border-radius:6px;background:var(--bg2);overflow:hidden;margin-bottom:12px}
+.pfill{height:100%;border-radius:6px;transition:width .35s ease}
+textarea{width:100%;font-family:inherit;font-size:12px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;resize:vertical}
+textarea::placeholder{color:var(--text3)}
+.det-foot{font-size:11px;color:var(--text3);text-align:right;margin-top:4px}
+/* Edit mode */
+.edit-bar{display:flex;align-items:center;justify-content:space-between;background:#FFF8E6;border:1px solid #F0C040;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#854F0B}
+.edit-bar-txt{display:flex;align-items:center;gap:7px}
+.btn-edit-obj{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:5px;transition:all .15s}
+.btn-edit-obj:hover{background:var(--bg2);color:#185FA5}
+.oc-edit-form{background:var(--bg2);border-radius:10px;padding:12px 14px;margin-top:8px;display:none}
+.oc-edit-form.open{display:block}
+.edit-field{width:100%;font-family:inherit;font-size:12px;padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);margin-bottom:8px;outline:none;box-sizing:border-box}
+.edit-field:focus{border-color:#185FA5}
+.edit-row{display:flex;gap:8px;margin-bottom:8px}
+.edit-field-sm{width:90px;font-family:inherit;font-size:12px;padding:7px 9px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);outline:none}
+.edit-field-sm:focus{border-color:#185FA5}
+.edit-btns{display:flex;gap:6px;justify-content:flex-end}
+.btn-edit-save{background:#185FA5;color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:11px;font-weight:500;cursor:pointer}
+.btn-edit-cancel{background:var(--bg);border:1px solid var(--border);color:var(--text2);border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer}
+.admin-pill{display:inline-flex;align-items:center;gap:5px;background:#FFF8E6;border:1px solid #F0C040;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:500;color:#854F0B}
+
+/* Monthly bar */
+.month-bar-wrap{margin-bottom:12px}
+.month-bar-track{position:relative;height:10px;border-radius:6px;background:var(--bg2);overflow:visible;margin-bottom:6px}
+.month-bar-fill{height:100%;border-radius:6px;transition:width .4s ease;position:relative}
+.month-bar-checkpoint{position:absolute;top:-4px;width:3px;height:18px;border-radius:2px;background:#E6223D;z-index:2}
+.month-bar-checkpoint-lbl{position:absolute;top:20px;font-size:9px;font-weight:600;color:#E6223D;transform:translateX(-50%);white-space:nowrap}
+.month-bar-cursor{position:absolute;top:-3px;width:16px;height:16px;border-radius:50%;border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transform:translateX(-50%);z-index:3;transition:left .4s ease}
+.month-ticks{display:flex;justify-content:space-between;padding:0;margin-top:18px}
+.month-tick{font-size:9px;color:var(--text3);text-align:center;flex:1}
+.month-tick.current{font-weight:700}
+.month-tick.checkpoint{color:#E6223D;font-weight:600}
+.month-tick.past{color:var(--text2)}
+.month-info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.month-info-row .mi-label{font-size:11px;color:var(--text2)}
+.month-info-row .mi-val{font-size:11px;font-weight:600}
+.feed-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:6px}
+/* Adjuntos */
+.attach-section{margin-top:10px;border-top:1px dashed var(--border);padding-top:10px}
+.attach-btn{display:inline-flex;align-items:center;gap:5px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:5px 11px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer}
+.attach-btn:hover{border-color:#185FA5;color:#185FA5}
+.attach-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.attach-item{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
+.attach-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.attach-info{flex:1;min-width:0}
+.attach-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attach-size{font-size:10px;color:var(--text3);margin-top:1px}
+.attach-actions{display:flex;gap:5px;flex-shrink:0}
+.attach-view{font-size:11px;color:#185FA5;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0}
+.attach-del{font-size:11px;color:#cc3333;cursor:pointer;background:none;border:none;padding:0}
+.attach-input{display:none}
+/* Modal base */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.modal-box{background:var(--bg);border-radius:16px;padding:0;width:min(520px,96vw);box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid var(--border)}
+.modal-head-title{font-size:16px;font-weight:600;margin-bottom:3px}
+.modal-head-sub{font-size:12px;color:var(--text3)}
+.modal-body{padding:20px 24px;max-height:65vh;overflow-y:auto}
+.modal-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.btn-cancel{background:var(--bg2);color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer}
+.btn-confirm{background:#185FA5;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer}
+.btn-confirm:hover{opacity:.88}
+.btn-danger{background:#cc3333;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer}
+/* Upload modal specific */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .18s;margin-bottom:14px}
+.upload-zone:hover,.upload-zone.dragover{border-color:#185FA5;background:#E6F1FB22}
+.upload-zone-icon{font-size:32px;margin-bottom:8px}
+.upload-zone-txt{font-size:13px;color:var(--text2);margin-bottom:4px}
+.upload-zone-sub{font-size:11px;color:var(--text3)}
+.upload-preview{background:var(--bg2);border-radius:8px;padding:12px;font-size:12px;color:var(--text2);max-height:200px;overflow-y:auto}
+.preview-row{display:flex;gap:10px;padding:4px 0;border-bottom:1px solid var(--border)}
+.preview-row:last-child{border-bottom:none}
+.preview-row span{font-size:11px}
+.preview-row .pr-name{font-weight:500;flex:0 0 120px}
+.preview-row .pr-obj{flex:1;color:var(--text3)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:5px;display:block}
+.form-input{width:100%;font-family:inherit;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg2);color:var(--text);outline:none}
+.form-input:focus{border-color:#185FA5}
+.color-grid{display:flex;gap:8px;flex-wrap:wrap}
+.color-opt{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s}
+.color-opt.selected{border-color:#1a1a18;transform:scale(1.15)}
+.lock-toggle{display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg2);border-radius:8px;cursor:pointer}
+.lock-toggle-lbl{font-size:12px;color:var(--text2);flex:1}
+.toggle{width:36px;height:20px;background:#ccc;border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:#185FA5}
+.toggle::after{content:"";position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:18px}
+.pass-field-wrap{margin-top:8px;display:none}
+.pass-field-wrap.show{display:block}
+/* Password modal */
+.pw-modal-box{background:var(--bg);border-radius:16px;padding:28px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.pw-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.pw-title{font-size:16px;font-weight:600;margin-bottom:4px}
+.pw-sub{font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.4}
+.pw-inp{width:100%;font-family:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text);letter-spacing:.15em;margin-bottom:8px;outline:none;box-sizing:border-box}
+.pw-err{font-size:11px;color:#cc3333;min-height:16px;margin-bottom:10px}
+.pw-btns{display:flex;gap:8px}
+.pw-btn-ok{flex:1;background:#7A4400;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:500;cursor:pointer}
+.pw-btn-cancel{background:var(--bg2);color:var(--text2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;font-size:13px;cursor:pointer}
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-state-icon{font-size:36px;margin-bottom:12px}
+.empty-state-txt{font-size:14px;font-weight:500;margin-bottom:4px;color:var(--text2)}
+.empty-state-sub{font-size:12px}
+.section-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-divider-line{flex:1;height:1px;background:var(--border)}
+.section-divider-lbl{font-size:11px;color:var(--text3);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Password modal -->
+  <div class="modal-overlay" id="passModal" style="display:none">
+    <div class="pw-modal-box">
+      <div class="pw-icon" id="passIcon" style="background:#F9EDD9;color:#7A4400">🔒</div>
+      <div class="pw-title" id="passTitle">Área restringida</div>
+      <div class="pw-sub" id="passSub">Ingresa la contraseña para acceder.</div>
+      <input class="pw-inp" id="passInput" type="password" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPass()">
+      <div class="pw-err" id="passErr"></div>
+      <div class="pw-btns">
+        <button class="pw-btn-cancel" onclick="closePassModal()">Cancelar</button>
+        <button class="pw-btn-ok" id="passOkBtn" onclick="checkPass()">Ingresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload / Add area modal -->
+  <div class="modal-overlay" id="uploadModal" style="display:none">
+    <div class="modal-box" style="width:min(580px,96vw)">
+      <div class="modal-head">
+        <div class="modal-head-title">➕ Agregar equipo</div>
+        <div class="modal-head-sub">Sube el Excel con los objetivos de tu equipo usando la plantilla.</div>
+      </div>
+      <div class="modal-body">
+        <!-- Step 1: upload -->
+        <div id="uploadStep1">
+          <div class="form-group">
+            <label class="form-label">Nombre del área *</label>
+            <input class="form-input" id="newAreaName" placeholder="Ej: Área Legal, Gerencia, RRHH...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nombre del supervisor *</label>
+            <input class="form-input" id="newAreaSupervisor" placeholder="Ej: María García">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color del área</label>
+            <div class="color-grid" id="colorGrid"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Archivo Excel (usa la plantilla) *</label>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileUploadInp').click()" ondragover="dragOver(event)" ondrop="dropFile(event)" ondragleave="dragLeave(event)">
+              <div class="upload-zone-icon">📊</div>
+              <div class="upload-zone-txt">Haz clic o arrastra el archivo Excel</div>
+              <div class="upload-zone-sub">Columnas: Nombre · Cargo · Objetivo · Peso · Fecha · Meta (opcional)</div>
+            </div>
+            <input type="file" id="fileUploadInp" accept=".xlsx,.xls" style="display:none" onchange="handleFileUpload(this)">
+            <div id="uploadPreview" style="display:none">
+              <div class="section-divider"><div class="section-divider-line"></div><span class="section-divider-lbl">Vista previa</span><div class="section-divider-line"></div></div>
+              <div class="upload-preview" id="previewContent"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="lock-toggle" onclick="toggleAreaLock()">
+              <span class="lock-toggle-lbl">🔒 Proteger área con contraseña</span>
+              <div class="toggle" id="lockToggle"></div>
+            </div>
+            <div class="pass-field-wrap" id="passFieldWrap">
+              <input class="form-input" id="newAreaPass" type="password" placeholder="Contraseña para esta área" style="margin-top:8px">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="closeUploadModal()">Cancelar</button>
+        <button class="btn-tpl" onclick="downloadTemplate()" style="margin-right:auto">⬇ Descargar plantilla</button>
+        <button class="btn-confirm" onclick="confirmAddArea()">Agregar área</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete area modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none">
+    <div class="modal-box" style="width:360px">
+      <div class="modal-head">
+        <div class="modal-head-title">🗑 Eliminar área</div>
+        <div class="modal-head-sub" id="deleteModalSub"></div>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text2);line-height:1.5">Esta acción eliminará el área y todo el progreso registrado. <strong>No se puede deshacer.</strong></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="document.getElementById('deleteModal').style.display='none'">Cancelar</button>
+        <button class="btn-danger" onclick="confirmDeleteArea()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Rename area modal -->
+  <div class="modal-overlay" id="renameModal" style="display:none">
+    <div class="modal-box" style="width:380px">
+      <div class="modal-head">
+        <div class="modal-head-title">✏️ Renombrar área</div>
+        <div class="modal-head-sub">Cambia el nombre o supervisor del área.</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nombre del área</label>
+          <input class="rename-field" id="renameAreaName" type="text" placeholder="Nombre del área">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supervisor</label>
+          <input class="rename-field" id="renameAreaSup" type="text" placeholder="Nombre del supervisor">
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="document.getElementById('renameModal').style.display='none'">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmRenameArea()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete member modal -->
+  <div class="modal-overlay" id="deleteMemberModal" style="display:none">
+    <div class="modal-box" style="width:360px">
+      <div class="modal-head">
+        <div class="modal-head-title">🗑 Eliminar colaborador</div>
+        <div class="modal-head-sub" id="deleteMemberSub"></div>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text2);line-height:1.5">Se eliminará al colaborador y todo su progreso registrado. <strong>No se puede deshacer.</strong></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="document.getElementById('deleteMemberModal').style.display='none'">Cancelar</button>
+        <button class="btn-danger" onclick="confirmDeleteMember()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete objective modal -->
+  <div class="modal-overlay" id="deleteObjModal" style="display:none">
+    <div class="modal-box" style="width:360px">
+      <div class="modal-head">
+        <div class="modal-head-title">🗑 Eliminar objetivo</div>
+        <div class="modal-head-sub" id="deleteObjSub"></div>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text2);line-height:1.5">Se eliminará el objetivo y su progreso. <strong>No se puede deshacer.</strong></p>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel" onclick="document.getElementById('deleteObjModal').style.display='none'">Cancelar</button>
+        <button class="btn-danger" onclick="confirmDeleteObj()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main UI -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="meta">Vinatea &amp; Toyama</div>
+      <div class="title">Plataforma de objetivos</div>
+    </div>
+    <div class="hdr-r">
+      <span class="save-ind" id="si" style="color:#0F6E56">✓ Guardado</span>
+      <button class="btn-tpl" id="adminBtn" onclick="toggleAdmin()">🔑 Admin</button>
+      <button class="btn-tpl" onclick="showUploadModal()">➕ Agregar equipo</button>
+      <button class="btn-primary" onclick="exportExcel()">↓ Exportar Excel</button>
+    </div>
+  </div>
+
+  <div class="stats" id="statsGrid"></div>
+  <div class="area-tabs" id="areaTabs"></div>
+  <div id="mainContent"></div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const STORAGE_KEY="vt-plataforma-v1";
+const STATUSES=[
+  {key:"pendiente",label:"Pendiente",color:"#888780",bg:"#F1EFE8"},
+  {key:"en_progreso",label:"En progreso",color:"#185FA5",bg:"#E6F1FB"},
+  {key:"completado",label:"Completado",color:"#0F6E56",bg:"#E1F5EE"},
+];
+const MONTHS=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const CHECKPOINT_MONTH=8;
+const PALETTE=["#185FA5","#0F6E56","#854F0B","#534AB7","#993556","#7B3FA0","#C45E0A","#1A6E8A","#2C6E2E","#7A4400","#0A6E7A","#5A3DAA"];
+const PALETTE_BG=["#E6F1FB","#E1F5EE","#FAEEDA","#EEEDFE","#FBEAF0","#F3E8FC","#FDEEE1","#E0F2F8","#E4F4E4","#F9EDD9","#DDF4F7","#EDE8FB"];
+const MEMBER_COLORS=["#185FA5","#0F6E56","#854F0B","#534AB7","#993556","#7B3FA0","#C45E0A","#1A6E8A","#2C6E2E","#7A4400","#0A6E7A","#5A3DAA"];
+const MEMBER_BGS=["#E6F1FB","#E1F5EE","#FAEEDA","#EEEDFE","#FBEAF0","#F3E8FC","#FDEEE1","#E0F2F8","#E4F4E4","#F9EDD9","#DDF4F7","#EDE8FB"];
+
+const ADMIN_PASS='VTCID2025';
+let adminUnlocked=false;
+let areas=[];        // dynamic areas
+let selArea=0,selMember=0;
+let progress={};     // {areaKey::memberName: {obj0:{status,notes,attachments}, ...}}
+let unlocked={};     // {areaKey: true/false}
+let selColor=0;
+let pendingAreaIdx=null;
+let parsedMembers=[];
+let saveTimer=null;
+
+/* ===================== PERSISTENCE ===================== */
+function saveAll(){
+  // adminUnlocked is session-only, not persisted
+
+  setSaved(false);clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify({areas,progress,unlocked}))}catch{}
+    setSaved(true);
+  },400);
+}
+function loadAll(){
+  try{
+    const r=localStorage.getItem(STORAGE_KEY);
+    if(r){const d=JSON.parse(r);areas=d.areas||[];progress=d.progress||{};unlocked=d.unlocked||{};}
+  }catch{}
+}
+function setSaved(ok){const el=document.getElementById("si");el.textContent=ok?"✓ Guardado":"Guardando...";el.style.color=ok?"#0F6E56":"#9e9e9b"}
+
+/* ===================== UTILS ===================== */
+function pKey(aKey,mName){return aKey+"::"+mName}
+function defObjState(){return{status:"pendiente",notes:"",attachments:[]}}
+function getMState(aKey,mName,nObjs){
+  const k=pKey(aKey,mName);
+  if(!progress[k]){progress[k]={};for(let i=0;i<nObjs;i++)progress[k]["obj"+i]=defObjState();}
+  return progress[k];
+}
+function getObjState(aKey,mName,idx){
+  const ms=getMState(aKey,mName,idx+1);
+  if(!ms["obj"+idx])ms["obj"+idx]=defObjState();
+  if(!ms["obj"+idx].attachments)ms["obj"+idx].attachments=[];
+  return ms["obj"+idx];
+}
+function getInitials(name){
+  return name.trim().split(/\s+/).slice(0,2).map(w=>w[0].toUpperCase()).join("");
+}
+function getAutoProgress(){
+  const now=new Date(),m=now.getMonth()+1,d=now.getDate();
+  const partial=d/30,totalMonths=11,elapsed=(m-1)+partial;
+  return Math.min(Math.round((elapsed/totalMonths)*100),100);
+}
+function calcW(area,member){
+  const ms=getMState(area.key,member.name,member.objectives.length);
+  return member.objectives.reduce((acc,obj,i)=>{
+    const s=ms["obj"+i]||defObjState();
+    let p=s.status==="completado"?100:s.status==="en_progreso"?getAutoProgress():0;
+    return acc+(p*obj.weight)/100;
+  },0);
+}
+function nextStatus(cur){const i=STATUSES.findIndex(s=>s.key===cur);return STATUSES[(i+1)%STATUSES.length].key}
+function slbl(k){return{pendiente:"Pendiente",en_progreso:"En progreso",completado:"Completado"}[k]}
+function mkAreaKey(name){return name.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")+"-"+Date.now()}
+
+/* ===================== RING SVG ===================== */
+function ring(pct,color,size){
+  const r=(size-6)/2,circ=2*Math.PI*r,dash=(pct/100)*circ;
+  return`<svg width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="5"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-dasharray="${dash} ${circ}" stroke-linecap="round" style="transition:stroke-dasharray .4s"/></svg>`;
+}
+
+/* ===================== MONTHLY BAR ===================== */
+function renderMonthBar(pct,color,status){
+  const now=new Date(),curMonth=now.getMonth()+1;
+  const checkpointPct=((CHECKPOINT_MONTH-1)/11)*100;
+  const isCPPast=curMonth>CHECKPOINT_MONTH,isCPCurrent=curMonth===CHECKPOINT_MONTH;
+  const feedLabel=isCPPast||isCPCurrent?"✓ Corte pasado":"⚑ Feed Agosto";
+  const feedColor=isCPPast?"#0F6E56":"#E6223D";
+  const ticksHtml=MONTHS.map((name,i)=>{
+    const m=i+1;let cls="month-tick";
+    if(m===curMonth)cls+=" current";else if(m===CHECKPOINT_MONTH)cls+=" checkpoint";else if(m<curMonth)cls+=" past";
+    return`<span class="${cls}" style="${m===curMonth?"color:"+color:""}">${name}</span>`;
+  }).join("");
+  return`<div class="month-bar-wrap">
+    <div class="month-info-row"><span class="mi-label">Avance mensual automático</span>
+      <span class="mi-val" style="color:${color}">${pct}%<span class="feed-badge" style="background:${feedColor}18;color:${feedColor}">${feedLabel}</span></span></div>
+    <div class="month-bar-track">
+      <div class="month-bar-fill" style="width:${Math.min(pct,checkpointPct)}%;background:${color};opacity:.4"></div>
+      <div class="month-bar-fill" style="position:absolute;top:0;left:0;width:${pct}%;background:${color}"></div>
+      <div class="month-bar-checkpoint" style="left:${checkpointPct}%"><span class="month-bar-checkpoint-lbl">Ago</span></div>
+      ${status==="en_progreso"?`<div class="month-bar-cursor" style="left:${Math.min(pct,100)}%;background:${color}"></div>`:""}
+    </div>
+    <div class="month-ticks">${ticksHtml}</div>
+  </div>`;
+}
+
+/* ===================== RENDER ===================== */
+function renderStats(){
+  if(!areas.length){document.getElementById("statsGrid").innerHTML="";return;}
+  const a=areas[selArea];
+  let totalObjs=0,completedObjs=0,sumPct=0;
+  a.members.forEach(m=>{
+    sumPct+=calcW(a,m);
+    m.objectives.forEach((_,i)=>{totalObjs++;if(getObjState(a.key,m.name,i).status==="completado")completedObjs++;});
+  });
+  const avg=Math.round(sumPct/a.members.length);
+  document.getElementById("statsGrid").innerHTML=[
+    {label:"Avance del área",value:avg+"%",color:a.color},
+    {label:"Obj. completados",value:completedObjs+"/"+totalObjs,color:"#0F6E56"},
+    {label:"Colaboradores",value:a.members.length,color:"#534AB7"},
+    {label:"Supervisor",value:a.supervisor,color:"#7A4400",small:true},
+  ].map(s=>`<div class="sc" style="border-left-color:${s.color}44"><div class="sc-n" style="color:${s.color};font-size:${s.small?"14px":"22px"}">${s.value}</div><div class="sc-l">${s.label}</div></div>`).join("");
+}
+
+function renderAreaTabs(){
+  const tabs=areas.map((a,i)=>{
+    let sumPct=0;a.members.forEach(m=>sumPct+=calcW(a,m));
+    const avg=a.members.length?Math.round(sumPct/a.members.length):0;
+    const isActive=i===selArea,isLocked=a.locked&&!unlocked[a.key];
+    const delBtn=adminUnlocked?`<button class="area-del-btn" onclick="event.stopPropagation();promptDeleteArea(${i})" title="Eliminar área">✕</button>`:"";
+    return`<div class="area-tab${isActive?" active":""}" style="background:${isActive?a.color:"var(--bg)"};color:${isActive?"#fff":a.color};border-color:${a.color}44" onclick="selectArea(${i})">
+      ${isLocked?"🔒 ":""}${a.name}
+      <span class="area-badge" style="background:${isActive?"rgba(255,255,255,.25)":a.bg};color:${isActive?"#fff":a.color}">${isLocked?"?":avg+"%"}</span>
+      ${delBtn}
+    </div>`;
+  }).join("");
+  document.getElementById("areaTabs").innerHTML=tabs+`<button class="area-tab-add" onclick="showUploadModal()">➕ Agregar equipo</button>`;
+}
+
+function renderTeamBar(){
+  if(!areas.length){document.getElementById("mainContent").innerHTML=renderEmpty();return;}
+  const a=areas[selArea];
+  const tbar=a.members.map((m,i)=>{
+    const pct=calcW(a,m);
+    return`<div class="tbar-seg" style="background:${m.color};opacity:${pct>0?0.65+(pct/100)*0.35:0.15}" title="${m.name}: ${Math.round(pct)}%" onclick="selectMember(${i})"></div>`;
+  }).join("");
+  const lbls=a.members.map(m=>`<span style="flex:1;text-align:center">${getInitials(m.name)}</span>`).join("");
+  return{tbar,lbls};
+}
+
+function renderEmpty(){
+  return`<div class="empty-state">
+    <div class="empty-state-icon">🏢</div>
+    <div class="empty-state-txt">No hay equipos todavía</div>
+    <div class="empty-state-sub">Haz clic en "➕ Agregar equipo" para comenzar.</div>
+  </div>`;
+}
+
+function renderAll(){
+  renderStats();
+  renderAreaTabs();
+  if(!areas.length){document.getElementById("mainContent").innerHTML=renderEmpty();return;}
+  const a=areas[selArea];
+  const {tbar,lbls}=renderTeamBar();
+  const sidebar=a.members.map((m,i)=>{
+    const pct=Math.round(calcW(a,m));
+    const comp=m.objectives.filter((_,j)=>getObjState(a.key,m.name,j).status==="completado").length;
+    const isAct=i===selMember;
+    return`<div class="mc${isAct?" active":""}" style="background:${isAct?m.bg:"var(--bg)"};border-color:${isAct?m.color+"88":"var(--border)"}" onclick="selectMember(${i})">
+      <div class="av" style="background:${m.bg};color:${m.color};border-color:${m.color}44">${getInitials(m.name)}</div>
+      <div class="mc-info"><div class="mc-name">${m.name}</div><div class="mc-sub">${m.role} · ${comp}/${m.objectives.length} obj.</div></div>
+      <div class="ring-wrap">${ring(pct,m.color,36)}<span class="ring-lbl" style="color:${m.color}">${pct}%</span></div>
+    </div>`;
+  }).join("");
+  const m=a.members[selMember];
+  const wp=Math.round(calcW(a,m));
+  const isAdmin=adminUnlocked;
+  const adminBar=isAdmin?`<div class="admin-actions-bar">
+    <span class="admin-actions-lbl">🔑 Modo admin</span>
+    <button class="btn-admin-action" onclick="promptRenameArea()">✏️ Renombrar área</button>
+    <button class="btn-admin-action danger" onclick="promptDeleteMember(${selMember})">🗑 Eliminar colaborador</button>
+    <button class="btn-admin-action danger" onclick="promptDeleteArea(${selArea})">🗑 Eliminar área</button>
+  </div>`:"";
+  const cards=m.objectives.map((obj,i)=>{
+    const s=getObjState(a.key,m.name,i);
+    const eff=s.status==="completado"?100:s.status==="en_progreso"?getAutoProgress():0;
+    const st=STATUSES.find(x=>x.key===s.status);
+    const atts=s.attachments||[];
+    const attachHtml=atts.length
+      ?'<div class="attach-list">'+atts.map((att,ai)=>`<div class="attach-item">
+          <div class="attach-icon" style="background:${m.color}15">${getFileIcon(att.type)}</div>
+          <div class="attach-info"><div class="attach-name">${att.name}</div><div class="attach-size">${fmtSize(att.size)} · ${att.date}</div></div>
+          <div class="attach-actions"><button class="attach-view" onclick="viewAttach(${i},${ai})">Ver</button><button class="attach-del" onclick="removeAttach(${i},${ai})">✕</button></div>
+        </div>`).join('')+'</div>'
+      :'<p style="font-size:11px;color:var(--text3);margin-top:6px">Sin evidencias adjuntas.</p>';
+    const barHtml=s.status==="completado"
+      ?`<div class="pbar"><div class="pfill" style="width:100%;background:${m.color}"></div></div>`
+      :s.status==="en_progreso"
+        ?renderMonthBar(eff,m.color,"en_progreso")
+        :`<div class="pbar"><div class="pfill" style="width:0%;background:${m.color}"></div></div>`;
+    return`<div class="oc">
+      <div class="oc-top">
+        <div class="oc-num" style="background:${m.color}18;color:${m.color}">${i+1}</div>
+        <div class="oc-txt">${obj.text}${obj.meta?`<div><span class="oc-meta" style="background:${m.color}18;color:${m.color}">${obj.meta}</span></div>`:""}</div>
+        <div class="oc-w"><div class="oc-wl">Peso</div><div class="oc-wn" style="color:${m.color}">${obj.weight}%</div><div class="oc-wdate">${obj.date||"Dic."}</div>
+          ${isAdmin?`<button class="btn-edit-obj" onclick="openEditObj(${selArea},${selMember},${i})" title="Editar objetivo">✏️</button>`:""}
+        </div>
+        ${isAdmin?`<button class="btn-del-obj" onclick="promptDeleteObj(${i})" title="Eliminar objetivo">🗑</button>`:""}
+      </div>
+      <div class="st-row">
+        <button class="st-btn" style="background:${st.bg};color:${st.color};border-color:${st.color}44" onclick="cycleStatus(${i})">${st.label}</button>
+        <span class="hint">clic para cambiar</span>
+      </div>
+      ${barHtml}
+      <textarea rows="2" placeholder="Agregar comentario u observación..." oninput="updNotes(${i},this.value)">${s.notes||""}</textarea>
+      ${isAdmin?`<div class="oc-edit-form" id="edit-form-${selArea}-${selMember}-${i}">
+        <div style="font-size:11px;font-weight:600;color:#185FA5;margin-bottom:8px">✏️ Editar objetivo ${i+1}</div>
+        <textarea class="edit-field" id="edit-txt-${selArea}-${selMember}-${i}" rows="2" placeholder="Texto del objetivo">${obj.text}</textarea>
+        <div class="edit-row">
+          <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Peso (%)</div><input class="edit-field-sm" id="edit-peso-${selArea}-${selMember}-${i}" type="number" min="1" max="100" value="${obj.weight}"></div>
+          <div style="flex:1"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Fecha</div><input class="edit-field" id="edit-fecha-${selArea}-${selMember}-${i}" type="text" placeholder="Diciembre" value="${obj.date||''}"></div>
+          <div style="flex:1"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">Meta (opcional)</div><input class="edit-field" id="edit-meta-${selArea}-${selMember}-${i}" type="text" placeholder="Meta: 100%" value="${obj.meta||''}"></div>
+        </div>
+        <div class="edit-btns">
+          <button class="btn-edit-cancel" onclick="closeEditObj(${selArea},${selMember},${i})">Cancelar</button>
+          <button class="btn-edit-save" onclick="saveEditObj(${selArea},${selMember},${i})">Guardar cambios</button>
+        </div>
+      </div>`:""}
+      <div class="attach-section">
+        <input class="attach-input" id="afinp-${selArea}-${selMember}-${i}" type="file" accept=".pdf,.png,.jpg,.jpeg,.gif,.eml,.msg,.docx,.doc,.xlsx,.xls,.pptx,.ppt,.txt,.zip" onchange="handleAttach(${i},this)">
+        <button class="attach-btn" onclick="document.getElementById('afinp-${selArea}-${selMember}-${i}').click()">📎 Adjuntar evidencia</button>
+        ${attachHtml}
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("mainContent").innerHTML=`
+    <div class="tbar-wrap"><div class="tbar">${tbar}</div><div class="tbar-lbls">${lbls}</div></div>
+    <div class="layout">
+      <div>
+        <div class="sidebar-lbl" id="sidebarLbl">Supervisor: ${a.supervisor}</div>
+        <div class="mlist">${sidebar}</div>
+      </div>
+      <div>
+        <div class="det-hdr">
+          <div class="det-av" style="background:${m.bg};color:${m.color};border-color:${m.color}66">${getInitials(m.name)}</div>
+          <div><div class="det-name">${m.name}</div><div class="det-sub">${m.role} · ${a.name} · Avance ponderado: ${wp}%</div></div>
+        </div>
+        ${adminBar}${cards}
+        <div class="det-foot">Los cambios se guardan automáticamente.</div>
+      </div>
+    </div>`;
+}
+
+/* ===================== INTERACTIONS ===================== */
+function selectArea(i){
+  const a=areas[i];
+  if(a.locked&&!unlocked[a.key]&&!adminUnlocked){
+    pendingAreaIdx=i;
+    openPassModal(a.color,a.bg,`Área restringida — ${a.name}`,`Ingresa la contraseña del área "${a.name}" para acceder.`,a.password);
+    return;
+  }
+  selArea=i;selMember=0;renderAll();
+}
+function toggleAdmin(){
+  if(adminUnlocked){
+    adminUnlocked=false;
+    // Re-lock areas
+    Object.keys(unlocked).forEach(k=>delete unlocked[k]);
+    document.getElementById("adminBtn").textContent="🔑 Admin";
+    document.getElementById("adminBtn").style.borderColor="";
+    document.getElementById("adminBtn").style.color="";
+    renderAll();return;
+  }
+  openPassModal("#185FA5","#E6F1FB","Acceso de administrador","Ingresa tu contraseña de admin para gestionar todos los equipos.",ADMIN_PASS,()=>{
+    adminUnlocked=true;
+    // Unlock all areas for this session
+    areas.forEach(a=>unlocked[a.key]=true);
+    document.getElementById("adminBtn").textContent="🔑 Admin ✓";
+    document.getElementById("adminBtn").style.borderColor="#185FA5";
+    document.getElementById("adminBtn").style.color="#185FA5";
+    renderAll();
+  });
+}
+function selectMember(i){selMember=i;renderAll()}
+
+function cycleStatus(objIdx){
+  const a=areas[selArea],m=a.members[selMember];
+  const s=getObjState(a.key,m.name,objIdx);
+  s.status=nextStatus(s.status);
+  saveAll();renderAll();
+}
+function updNotes(objIdx,val){
+  const a=areas[selArea],m=a.members[selMember];
+  getObjState(a.key,m.name,objIdx).notes=val;
+  saveAll();
+}
+
+/* ===================== ATTACHMENTS ===================== */
+function getFileIcon(t){
+  if(t.includes("pdf"))return"📄";if(t.includes("image"))return"🖼️";
+  if(t.includes("word")||t.includes("docx"))return"📝";
+  if(t.includes("excel")||t.includes("sheet"))return"📊";
+  if(t.includes("presentation")||t.includes("powerpoint"))return"📊";
+  if(t.includes("text"))return"📋";return"📎";
+}
+function fmtSize(b){if(b<1024)return b+"B";if(b<1048576)return(b/1024).toFixed(1)+"KB";return(b/1048576).toFixed(1)+"MB"}
+function handleAttach(objIdx,input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>3*1024*1024){alert("El archivo supera 3MB.");input.value="";return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const a=areas[selArea],m=a.members[selMember],s=getObjState(a.key,m.name,objIdx);
+    if(!s.attachments)s.attachments=[];
+    s.attachments.push({name:file.name,type:file.type,size:file.size,data:e.target.result,date:new Date().toLocaleDateString("es-PE")});
+    input.value="";saveAll();renderAll();
+  };reader.readAsDataURL(file);
+}
+function removeAttach(objIdx,ai){
+  const a=areas[selArea],m=a.members[selMember];
+  getObjState(a.key,m.name,objIdx).attachments.splice(ai,1);
+  saveAll();renderAll();
+}
+function viewAttach(objIdx,ai){
+  const a=areas[selArea],m=a.members[selMember];
+  const att=getObjState(a.key,m.name,objIdx).attachments[ai];
+  const win=window.open();
+  if(att.type.includes("image")){win.document.write(`<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${att.data}" style="max-width:100%;max-height:100vh"></body></html>`);}
+  else{const a2=win.document.createElement("a");a2.href=att.data;a2.download=att.name;win.document.body.appendChild(a2);a2.click();win.close();}
+}
+
+/* ===================== PASSWORD MODAL ===================== */
+let passCallback=null,passExpected=null;
+function openPassModal(color,bg,title,sub,expected,callback){
+  passExpected=expected;passCallback=callback||null;
+  document.getElementById("passIcon").style.background=bg;
+  document.getElementById("passIcon").style.color=color;
+  document.getElementById("passOkBtn").style.background=color;
+  document.getElementById("passTitle").textContent=title;
+  document.getElementById("passSub").textContent=sub;
+  document.getElementById("passInput").value="";
+  document.getElementById("passErr").textContent="";
+  document.getElementById("passModal").style.display="flex";
+  setTimeout(()=>document.getElementById("passInput").focus(),100);
+}
+function closePassModal(){document.getElementById("passModal").style.display="none";pendingAreaIdx=null;passCallback=null;}
+function checkPass(){
+  const val=document.getElementById("passInput").value;
+  if(val===passExpected){
+    document.getElementById("passModal").style.display="none";
+    if(passCallback){const cb=passCallback;passCallback=null;cb();}
+    else if(pendingAreaIdx!==null){unlocked[areas[pendingAreaIdx].key]=true;selArea=pendingAreaIdx;selMember=0;pendingAreaIdx=null;renderAll();}
+  } else {
+    document.getElementById("passErr").textContent="Contraseña incorrecta. Intenta de nuevo.";
+    document.getElementById("passInput").value="";document.getElementById("passInput").focus();
+  }
+}
+
+/* ===================== UPLOAD MODAL ===================== */
+let areaLocked=false;
+function showUploadModal(){
+  // Build color grid
+  const cg=document.getElementById("colorGrid");
+  cg.innerHTML=PALETTE.map((c,i)=>`<div class="color-opt${i===selColor?" selected":""}" style="background:${c}" onclick="selectColor(${i})"></div>`).join("");
+  parsedMembers=[];
+  document.getElementById("newAreaName").value="";
+  document.getElementById("newAreaSupervisor").value="";
+  document.getElementById("newAreaPass").value="";
+  document.getElementById("uploadPreview").style.display="none";
+  document.getElementById("uploadZone").innerHTML=`<div class="upload-zone-icon">📊</div><div class="upload-zone-txt">Haz clic o arrastra el archivo Excel</div><div class="upload-zone-sub">Columnas: Nombre · Cargo · Objetivo · Peso · Fecha · Meta (opcional)</div>`;
+  areaLocked=false;document.getElementById("lockToggle").className="toggle";
+  document.getElementById("passFieldWrap").className="pass-field-wrap";
+  document.getElementById("uploadModal").style.display="flex";
+}
+function closeUploadModal(){document.getElementById("uploadModal").style.display="none"}
+function selectColor(i){selColor=i;document.querySelectorAll(".color-opt").forEach((el,j)=>el.className="color-opt"+(j===i?" selected":""))}
+function toggleAreaLock(){
+  areaLocked=!areaLocked;
+  document.getElementById("lockToggle").className="toggle"+(areaLocked?" on":"");
+  document.getElementById("passFieldWrap").className="pass-field-wrap"+(areaLocked?" show":"");
+}
+function dragOver(e){e.preventDefault();document.getElementById("uploadZone").classList.add("dragover")}
+function dragLeave(e){document.getElementById("uploadZone").classList.remove("dragover")}
+function dropFile(e){e.preventDefault();dragLeave(e);const f=e.dataTransfer.files[0];if(f)processXLSX(f)}
+function handleFileUpload(inp){if(inp.files[0])processXLSX(inp.files[0])}
+
+function processXLSX(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:"binary"});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+
+      // Detect format automatically:
+      // Formato A (plantilla nueva): Supervisor | Asistente | Objetivo | Porcentaje | Porcentaje total | Fecha
+      // Formato B (plantilla anterior): Nombre | Cargo | Objetivo | Peso | Fecha | Meta
+      const header=rows[0]||[];
+      const colA=String(header[0]||"").toLowerCase();
+      const colB=String(header[1]||"").toLowerCase();
+      const hasFormatoVT=colA.includes("responsable")||colA.includes("supervisor")||colB.includes("asistente")||colB.includes("nombre");
+
+      const members={};
+      let lastSupervisor="";
+
+      for(let r=1;r<rows.length;r++){
+        const row=rows[r];
+        let name,cargo,obj,pesoRaw,fecha,meta;
+
+        if(hasFormatoVT){
+          // Formato VT: A=Supervisor(merged), B=Asistente, C=Objetivo, D=Porcentaje, E=PorcentajeTotal, F=Fecha
+          const sup=String(row[0]||"").trim();
+          if(sup)lastSupervisor=sup;
+          name=String(row[1]||"").trim();
+          cargo="Asistente";
+          obj=String(row[2]||"").trim();
+          pesoRaw=row[3];
+          fecha=String(row[5]||row[4]||"Diciembre").trim();
+          meta="";
+        } else {
+          // Formato plantilla: A=Nombre, B=Cargo, C=Objetivo, D=Peso, E=Fecha, F=Meta
+          name=String(row[0]||"").trim();
+          cargo=String(row[1]||"Asistente").trim();
+          obj=String(row[2]||"").trim();
+          pesoRaw=row[3];
+          fecha=String(row[4]||"Diciembre").trim();
+          meta=String(row[5]||"").trim();
+        }
+
+        if(!name||!obj)continue;
+
+        // Parse peso: handles "40%", 0.4 (decimal), 40 (integer)
+        let peso=0;
+        if(typeof pesoRaw==="number"){
+          peso=pesoRaw<1.01&&pesoRaw>0?Math.round(pesoRaw*100):pesoRaw;
+        } else {
+          peso=parseFloat(String(pesoRaw).replace("%",""))||0;
+          if(peso<1.01&&peso>0)peso=Math.round(peso*100);
+        }
+
+        if(!members[name])members[name]={name,role:cargo,objectives:[]};
+        members[name].objectives.push({text:obj,weight:peso,date:fecha||"Diciembre",meta:meta||undefined});
+      }
+
+      parsedMembers=Object.values(members);
+      parsedMembers=parsedMembers.map((m,i)=>({...m,color:MEMBER_COLORS[i%MEMBER_COLORS.length],bg:MEMBER_BGS[i%MEMBER_BGS.length]}));
+
+      if(!parsedMembers.length){
+        alert("No se encontraron datos. Verifica que el archivo tenga la estructura correcta.");return;
+      }
+
+      const prev=parsedMembers.slice(0,8).map(m=>
+        m.objectives.map((o,i)=>`<div class="preview-row"><span class="pr-name">${i===0?m.name:""}</span><span class="pr-obj">${o.text.substring(0,65)}${o.text.length>65?"…":""} <b>(${o.weight}%)</b></span></div>`).join("")
+      ).join("");
+      document.getElementById("previewContent").innerHTML=prev;
+      document.getElementById("uploadPreview").style.display="block";
+      document.getElementById("uploadZone").innerHTML=`<div class="upload-zone-icon">✅</div><div class="upload-zone-txt" style="color:#0F6E56">${file.name}</div><div class="upload-zone-sub">${parsedMembers.length} colaboradores · ${parsedMembers.reduce((a,m)=>a+m.objectives.length,0)} objetivos detectados</div>`;
+    }catch(err){
+      console.error(err);
+      alert("Error al leer el archivo: "+err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function confirmAddArea(){
+  const name=document.getElementById("newAreaName").value.trim();
+  const supervisor=document.getElementById("newAreaSupervisor").value.trim();
+  if(!name){alert("Por favor ingresa el nombre del área.");return;}
+  if(!supervisor){alert("Por favor ingresa el nombre del supervisor.");return;}
+  if(!parsedMembers.length){alert("Por favor sube el archivo Excel con los objetivos.");return;}
+  const pass=areaLocked?document.getElementById("newAreaPass").value.trim():"";
+  if(areaLocked&&!pass){alert("Ingresa una contraseña para el área.");return;}
+  const newArea={
+    key:mkAreaKey(name),name,supervisor,
+    color:PALETTE[selColor],bg:PALETTE_BG[selColor],
+    locked:true,password:pass||"",
+    members:parsedMembers
+  };
+  areas.push(newArea);
+  selArea=areas.length-1;selMember=0;
+  unlocked[newArea.key]=true; // creator gets access this session
+  closeUploadModal();saveAll();renderAll();
+}
+
+/* ===================== DELETE AREA ===================== */
+let pendingDeleteIdx=null;
+function promptDeleteArea(i){
+  pendingDeleteIdx=i;
+  const a=areas[i];
+  document.getElementById("deleteModalSub").textContent=`¿Eliminar "${a.name}" y todo su progreso?`;
+  document.getElementById("deleteModal").style.display="flex";
+}
+function confirmDeleteArea(){
+  if(pendingDeleteIdx===null)return;
+  const a=areas[pendingDeleteIdx];
+  // Remove progress for this area
+  Object.keys(progress).forEach(k=>{if(k.startsWith(a.key+"::"))delete progress[k]});
+  delete unlocked[a.key];
+  areas.splice(pendingDeleteIdx,1);
+  selArea=Math.min(selArea,Math.max(0,areas.length-1));
+  selMember=0;pendingDeleteIdx=null;
+  document.getElementById("deleteModal").style.display="none";
+  saveAll();renderAll();
+}
+
+
+
+/* ===================== ADMIN AREA MANAGEMENT ===================== */
+function promptRenameArea(){
+  const a=areas[selArea];
+  document.getElementById("renameAreaName").value=a.name;
+  document.getElementById("renameAreaSup").value=a.supervisor;
+  document.getElementById("renameModal").style.display="flex";
+  setTimeout(()=>document.getElementById("renameAreaName").focus(),100);
+}
+function confirmRenameArea(){
+  const name=document.getElementById("renameAreaName").value.trim();
+  const sup=document.getElementById("renameAreaSup").value.trim();
+  if(!name||!sup){alert("Completa ambos campos.");return;}
+  areas[selArea].name=name;
+  areas[selArea].supervisor=sup;
+  document.getElementById("renameModal").style.display="none";
+  saveAll();renderAll();
+}
+
+let pendingDeleteMemberIdx=null;
+function promptDeleteMember(memberIdx){
+  const a=areas[selArea];
+  if(a.members.length<=1){alert("No puedes eliminar al único colaborador del área.");return;}
+  pendingDeleteMemberIdx=memberIdx;
+  document.getElementById("deleteMemberSub").textContent=`¿Eliminar a "${a.members[memberIdx].name}" del área ${a.name}?`;
+  document.getElementById("deleteMemberModal").style.display="flex";
+}
+function confirmDeleteMember(){
+  if(pendingDeleteMemberIdx===null)return;
+  const a=areas[selArea],m=a.members[pendingDeleteMemberIdx];
+  delete progress[pKey(a.key,m.name)];
+  a.members.splice(pendingDeleteMemberIdx,1);
+  selMember=Math.min(selMember,a.members.length-1);
+  pendingDeleteMemberIdx=null;
+  document.getElementById("deleteMemberModal").style.display="none";
+  saveAll();renderAll();
+}
+
+let pendingDeleteObjIdx=null;
+function promptDeleteObj(objIdx){
+  const a=areas[selArea],m=a.members[selMember];
+  if(m.objectives.length<=1){alert("El colaborador debe tener al menos un objetivo.");return;}
+  pendingDeleteObjIdx=objIdx;
+  document.getElementById("deleteObjSub").textContent=`¿Eliminar el objetivo ${objIdx+1} de "${m.name}"?`;
+  document.getElementById("deleteObjModal").style.display="flex";
+}
+function confirmDeleteObj(){
+  if(pendingDeleteObjIdx===null)return;
+  const a=areas[selArea],m=a.members[selMember];
+  const k=pKey(a.key,m.name);
+  // Remove the objective and shift progress keys
+  m.objectives.splice(pendingDeleteObjIdx,1);
+  if(progress[k]){
+    const newMs={};
+    let newIdx=0;
+    for(let i=0;i<m.objectives.length+1;i++){
+      if(i===pendingDeleteObjIdx)continue;
+      newMs["obj"+newIdx]=progress[k]["obj"+i]||defObjState();
+      newIdx++;
+    }
+    progress[k]=newMs;
+  }
+  pendingDeleteObjIdx=null;
+  document.getElementById("deleteObjModal").style.display="none";
+  saveAll();renderAll();
+}
+/* ===================== END ADMIN AREA MANAGEMENT ===================== */
+
+/* ===================== EDIT OBJECTIVES ===================== */
+let editingObj={areaIdx:null,memberIdx:null,objIdx:null};
+
+function openEditObj(areaIdx,memberIdx,objIdx){
+  editingObj={areaIdx,memberIdx,objIdx};
+  const obj=areas[areaIdx].members[memberIdx].objectives[objIdx];
+  document.getElementById(`edit-form-${areaIdx}-${memberIdx}-${objIdx}`).classList.add("open");
+  document.getElementById(`edit-txt-${areaIdx}-${memberIdx}-${objIdx}`).value=obj.text;
+  document.getElementById(`edit-peso-${areaIdx}-${memberIdx}-${objIdx}`).value=obj.weight;
+  document.getElementById(`edit-fecha-${areaIdx}-${memberIdx}-${objIdx}`).value=obj.date||"";
+  document.getElementById(`edit-meta-${areaIdx}-${memberIdx}-${objIdx}`).value=obj.meta||"";
+}
+function closeEditObj(areaIdx,memberIdx,objIdx){
+  document.getElementById(`edit-form-${areaIdx}-${memberIdx}-${objIdx}`).classList.remove("open");
+}
+function saveEditObj(areaIdx,memberIdx,objIdx){
+  const txt=document.getElementById(`edit-txt-${areaIdx}-${memberIdx}-${objIdx}`).value.trim();
+  const peso=parseFloat(document.getElementById(`edit-peso-${areaIdx}-${memberIdx}-${objIdx}`).value)||0;
+  const fecha=document.getElementById(`edit-fecha-${areaIdx}-${memberIdx}-${objIdx}`).value.trim();
+  const meta=document.getElementById(`edit-meta-${areaIdx}-${memberIdx}-${objIdx}`).value.trim();
+  if(!txt){alert("El objetivo no puede estar vacío.");return;}
+  if(peso<=0||peso>100){alert("El peso debe estar entre 1 y 100.");return;}
+  areas[areaIdx].members[memberIdx].objectives[objIdx]={...areas[areaIdx].members[memberIdx].objectives[objIdx],text:txt,weight:peso,date:fecha,meta:meta||undefined};
+  saveAll();renderAll();
+}
+
+/* ===================== EXPORT EXCEL ===================== */
+function exportExcel(){
+  if(!areas.length){alert("No hay equipos para exportar.");return;}
+  const wb=XLSX.utils.book_new();
+  const fecha=new Date().toLocaleDateString("es-PE");
+  const rows=[["VINATEA & TOYAMA — Plataforma de Objetivos"],["Exportado: "+fecha],[],
+    ["Equipo","Supervisor","Nombre","Cargo","Objetivo","Peso (%)","Fecha","Estado","Avance (%)","Av. Ponderado (%)","Observaciones"]];
+  areas.forEach(a=>{
+    a.members.forEach(m=>{
+      const wp=Math.round(calcW(a,m));
+      m.objectives.forEach((obj,i)=>{
+        const s=getObjState(a.key,m.name,i);
+        const eff=s.status==="completado"?100:s.status==="en_progreso"?getAutoProgress():0;
+        rows.push([i===0?a.name:"",i===0?a.supervisor:"",i===0?m.name:"",i===0?m.role:"",obj.text,obj.weight,obj.date||"",slbl(s.status),eff,i===0?wp:"",s.notes||""]);
+      });rows.push([]);
+    });
+  });
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:20},{wch:16},{wch:20},{wch:12},{wch:55},{wch:8},{wch:10},{wch:14},{wch:10},{wch:18},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,ws,"Resumen");
+  areas.forEach(a=>{
+    const arows=[[a.name+" — "+a.supervisor],["Exportado: "+fecha],[],["Nombre","Cargo","Objetivo","Peso","Fecha","Estado","Avance (%)","Observaciones"]];
+    a.members.forEach(m=>{
+      m.objectives.forEach((obj,i)=>{
+        const s=getObjState(a.key,m.name,i);
+        const eff=s.status==="completado"?100:s.status==="en_progreso"?getAutoProgress():0;
+        arows.push([i===0?m.name:"",i===0?m.role:"",obj.text,obj.weight+"%",obj.date||"",slbl(s.status),eff,s.notes||""]);
+      });arows.push([]);
+    });
+    const aws=XLSX.utils.aoa_to_sheet(arows);
+    aws["!cols"]=[{wch:20},{wch:12},{wch:55},{wch:8},{wch:10},{wch:14},{wch:10},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,aws,a.name.substring(0,28));
+  });
+  XLSX.writeFile(wb,`Objetivos_VT_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+/* ===================== TEMPLATE DOWNLOAD ===================== */
+function downloadTemplate(){
+  const wb=XLSX.utils.book_new();
+  const rows=[
+    ["Nombre","Cargo","Objetivo","Peso (%)","Fecha de vencimiento","Meta (opcional)"],
+    ["Juan Pérez","Abogado","Resolver el 100% de casos asignados en el trimestre.",40,"Diciembre","Meta: 100%"],
+    ["Juan Pérez","Abogado","No exceder las incidencias / quejas a máximo 1 por trimestre.",40,"Diciembre",""],
+    ["Juan Pérez","Abogado","Presentar 1 propuesta de mejora operativa.",20,"Diciembre",""],
+    ["María López","Asistente","Actualizar el 100% de expedientes en el sistema.",50,"Agosto","Meta: 100%"],
+    ["María López","Asistente","No exceder las incidencias / quejas a máximo 1 por trimestre.",30,"Diciembre",""],
+    ["María López","Asistente","Proponer 2 mejoras para el proceso de archivo.",20,"Diciembre",""],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:20},{wch:14},{wch:60},{wch:10},{wch:20},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,"Objetivos");
+  // Instructions sheet
+  const irows=[
+    ["INSTRUCCIONES PARA LLENAR LA PLANTILLA"],[""],
+    ["Columna","Descripción","Ejemplo"],
+    ["Nombre","Nombre completo del colaborador. Repetir en cada fila de sus objetivos.","Juan Pérez"],
+    ["Cargo","Cargo o rol del colaborador.","Abogado / Asistente / Analista"],
+    ["Objetivo","Descripción del objetivo. Una fila por objetivo.","Resolver el 100% de casos asignados."],
+    ["Peso (%)","Porcentaje de peso del objetivo. La suma por persona debe ser 100%.","40"],
+    ["Fecha","Mes de vencimiento del objetivo.","Diciembre / Agosto / Junio"],
+    ["Meta (opcional)","Etiqueta adicional si aplica.","Meta: 100% (dejar vacío si no aplica)"],
+    [""],["NOTAS:"],
+    ["","• Cada objetivo ocupa una fila separada."],
+    ["","• Si un colaborador tiene 3 objetivos, ocupa 3 filas con el mismo nombre en columna A."],
+    ["","• Los pesos de cada colaborador deben sumar 100%."],
+    ["","• No modificar los encabezados de la primera fila."],
+  ];
+  const iws=XLSX.utils.aoa_to_sheet(irows);
+  iws["!cols"]=[{wch:20},{wch:40},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,iws,"Instrucciones");
+  XLSX.writeFile(wb,"Plantilla_Objetivos_VT.xlsx");
+}
+
+/* ===================== INIT ===================== */
+loadAll();
+renderAll();
+</script>
+</body>
+</html>
